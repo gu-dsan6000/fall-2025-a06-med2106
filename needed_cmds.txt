@@ -1,0 +1,8 @@
+scp -i spark-cluster-key-1761079161.pem cluster-ips.txt ubuntu@98.94.54.58:./
+
+scp -i spark-cluster-key-1761079161.pem pyproject.toml ubuntu@98.94.54.58
+:./
+
+scp -i spark-cluster-key-1761079161.pem problem1.py  ubuntu@98.94.54.58:.
+/
+
