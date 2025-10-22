@@ -1,14 +1,14 @@
-scp -i spark-cluster-key-1761146971.pem cluster-ips.txt ubuntu@44.201.71.29:./
+scp -i spark-cluster-key-1761161071.pem cluster-ips.txt ubuntu@184.72.158.204:./
 
-scp -i spark-cluster-key-1761146971.pem pyproject.toml ubuntu@44.201.71.29:./
+scp -i spark-cluster-key-1761161071.pem pyproject.toml ubuntu@184.72.158.204:./
 
-scp -i spark-cluster-key-1761146971.pem problem1.py  ubuntu@44.201.71.29:./
+scp -i spark-cluster-key-1761161071.pem problem1.py  ubuntu@184.72.158.204:./
 
 uv sync
 
 source .venv/bin/activate
 
 
-scp -i spark-cluster-key-1761146971.pem ubuntu@44.201.71.29:~/problem1_counts.csv data/output/
-scp -i spark-cluster-key-1761146971.pem ubuntu@44.201.71.29:~/problem1_sample.csv data/output/
-scp -i spark-cluster-key-1761146971.pem ubuntu@44.201.71.29:~/problem1_summary.txt data/output/
+scp -i spark-cluster-key-1761161071.pem ubuntu@184.72.158.204:~/problem1_counts.csv data/output/
+scp -i spark-cluster-key-1761161071.pem ubuntu@184.72.158.204:~/problem1_sample.csv data/output/
+scp -i spark-cluster-key-1761161071.pem ubuntu@184.72.158.204:~/problem1_summary.txt data/output/

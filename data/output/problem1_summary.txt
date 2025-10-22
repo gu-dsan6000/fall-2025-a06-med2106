@@ -1,11 +1,10 @@
 ============================================================
 Summary Statistics
 ============================================================
-Total log lines processed: 80752
-Total lines with log levels: 80752
-Unique log levels found: 4
+Total log lines processed: 32243217
+Total lines with log levels: 32243112
+Unique log levels found: 3
 Log level distribution:
-INFO:  80250 (99.38%)
-ERROR:  180 (0.22%)
-WARN:  168 (0.21%)
-UNK:  154 (0.19%)
+INFO:  26513799 (99.95%)
+ERROR:  9187 (0.03%)
+WARN:  4550 (0.02%)

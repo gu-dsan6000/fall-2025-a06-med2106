@@ -115,16 +115,6 @@ def solve_problem1(spark, data_files):
     logger.info(f"Reading {len(data_files)} application directories into a single DataFrame")
     print(f"Reading {len(data_files)} application directories into a single DataFrame...")
 
-    # First we need an empty spark data frame to store the logs
-    # # define the schema
-    # schema = StructType([
-    #     StructField("log_raw", StringType(), True),
-    #     StructField("application_id", StringType(), True),
-    #     StructField("container_id", StringType(), True)
-    # ])
-    # # define the empty dataframe
-    # log_df = spark.createDataFrame([], schema)
-
     all_files = []
     for app_dir in data_files:
         container_files = get_sub_dirs(spark, app_dir, level='file')
@@ -136,44 +126,14 @@ def solve_problem1(spark, data_files):
     # Read all files in one go
     log_df = spark.read.text(all_files)
 
+    # make of column for the input file name
     log_df = log_df.withColumn("file_path", input_file_name())
 
-    # # Extract application_id and container_id from the path
-    # log_df = log_df \
-    #                 .withColumn("application_id", regexp_extract("file_path", r"application_(\d+_\d+)", 1)) \
-    #                 .withColumn("container_id", regexp_extract("file_path", r"container_\d+_\d+_(\d+_\d+)", 1))
+    # Extract application_id and container_id from the path
+    log_df = log_df \
+                    .withColumn("application_id", regexp_extract("file_path", r"application_(\d+_\d+)", 1)) \
+                    .withColumn("container_id", regexp_extract("file_path", r"container_\d+_\d+_(\d+_\d+)", 1))
 
-    # for app_dir in data_files:
-    #     # use hadoop to get files again
-    #     container_files = get_sub_dirs(spark, app_dir, level = 'file')
-
-    #     # Filter out the "_000001.log" files
-    #     container_files_sorted = sorted(container_files, key=lambda f: f.split("/")[-1])
-    #     filtered_files = [
-    #         f for f in container_files_sorted if not f.strip().lower().endswith("_000001.log")
-    #     ]
-
-    #     if not filtered_files:
-    #         continue
-
-    #     for file_path in filtered_files:
-    #         # Read one file at a time
-    #         current_df = spark.read.text(file_path)
-
-    #         # Extract container_id from file path using regex
-    #         match = re.search(r'container_\d+_\d+_(\d+_\d+)', file_path)
-    #         container_id = match.group(1) if match else "unknown"
-
-    #         # Extract application_id from app_dir
-    #         match_app = re.search(r'application_\d+_\d+', app_dir)
-    #         application_id = match_app.group(0).replace("application_", "") if match_app else "unknown"
-
-    #         # Add columns
-    #         current_df = current_df.withColumn("application_id", lit(application_id))
-    #         current_df = current_df.withColumn("container_id", lit(container_id))
-
-    #         # Append to master DataFrame
-    #         log_df = log_df.union(current_df)
 
     total_rows = log_df.count()
     logger.info(f"Successfully loaded {total_rows:,} total rows from {len(data_files)} application")
@@ -188,8 +148,8 @@ def solve_problem1(spark, data_files):
     print(f"✅ Filtered to {filtered_rows:,} rows of just logs\n")
 
     # Step 2: Derive columns
-    logger.info("Step 2: Deriving columns from single log_raw column")
-    print("\nStep 2: Deriving columns from single log_raw column...")
+    logger.info("Step 2: Deriving columns from single main column")
+    print("\nStep 2: Deriving columns from single main column...")
     df_parsed = log_df \
                 .withColumn("date_str", regexp_extract("value", r"^(\d{2}/\d{2}/\d{2})", 1)) \
                 .withColumn("time", regexp_extract("value", r"^\d{2}/\d{2}/\d{2} (\d{2}:\d{2}:\d{2})", 1)) \
@@ -200,8 +160,10 @@ def solve_problem1(spark, data_files):
                     regexp_extract("value", r"\b(INFO|WARN|ERROR|DEBUG|TRACE)\b", 1)).otherwise(lit("UNK"))) \
                 .withColumn("log", regexp_extract("value", r"\b(?:INFO|WARN|ERROR|DEBUG|TRACE)\b\s+(.*)", 1))
         
-    # log_df = df_parsed.select("date", "timestamp", "log_level", "log", "application_id", "container_id")
-    log_df = df_parsed.select("date", "timestamp", "log_level", "log")
+    log_df = df_parsed.select("date", "timestamp", "log_level", "log", "application_id", "container_id")
+
+    # filter out  empty logs
+    log_df = log_df.filter(~col("log_level").startswith("UNK"))
 
     logger.info("Extracted columns from dataset")
     print("✅ Extracted columns from dataset\n")
@@ -306,7 +268,7 @@ def main():
     # Solve Problem 1
     try:
         logger.info("Starting Problem 1 analysis with s3 bucket")
-        solve_problem1(spark, app_directories[2:3])
+        solve_problem1(spark, app_directories)
         success = True
         logger.info("Problem 1 analysis completed successfully")
     except Exception as e:
