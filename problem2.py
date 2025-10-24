@@ -238,7 +238,7 @@ def solve_problem1(spark, data_files):
     print(f"Total applications: {total_apps}")
     print(f"Average applications per cluster: {round(total_apps/unique_clusters,2)}")
     print("Most heavily used clusters:")
-    for i in range(0,3):
+    for i in range(0,len(pandas_cluster_df)):
         print(f"Cluster {pandas_cluster_df['cluster_id'][i]}:  {pandas_cluster_df['num_applications'][i]} applications")
 
     # Save the summary stats
@@ -251,7 +251,7 @@ def solve_problem1(spark, data_files):
         f.write(f"Total applications: {total_apps}\n")
         f.write(f"Average applications per cluster: {round(total_apps/unique_clusters,2)}\n")
         f.write("Most heavily used clusters:\n")
-        for i in range(0,3):
+        for i in range(0,len(pandas_cluster_df)):
             f.write(f"Cluster {pandas_cluster_df['cluster_id'][i]}:  {pandas_cluster_df['num_applications'][i]} applications\n")
 
     print(f"\nStep 7: ✅ Results saved to {output_file_summary}\n")
@@ -329,7 +329,7 @@ def main():
     # Solve Problem 2
     try:
         logger.info("Starting Problem 2 analysis with s3 bucket")
-        solve_problem1(spark, app_directories[4:16])
+        solve_problem1(spark, app_directories)
         success = True
         logger.info("Problem 2 analysis completed successfully")
     except Exception as e:
